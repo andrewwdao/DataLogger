@@ -1,0 +1,7 @@
+#!/bin/sh
+
+# Run pg_config --includedir to find header files location
+gcc -c -I/usr/include/postgresql db.cpp
+
+# Run pg_config --libdir to find lib
+gcc -o db db.o -L/usr/lib/x86_64-linux-gnu -lpq
