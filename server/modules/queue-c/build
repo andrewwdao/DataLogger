@@ -1,0 +1,4 @@
+#!/bin/sh
+
+gcc -c queue.c
+gcc -o run run.c queue.o
