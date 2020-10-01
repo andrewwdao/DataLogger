@@ -4,20 +4,31 @@
 
 #include <mqtt.h>
 
-#define ADDRESS     "tcp://localhost:1883"
-#define CLIENTID    "ExampleClientSub"
-#define TOPIC       "data/#"
+#define ADDRESS     "tcp://192.168.0.99:1883"   
+#define CLIENT_PID  "ExampleClientPub2"
+#define CLIENT_SID  "ExampleClientSub"
+#define TOPIC_PUB   "data"
+#define TOPIC_SUB   "data/#"
 #define PAYLOAD     "Hello World!"
 #define QOS         1
 #define TIMEOUT     10000L
 
+MQTTClient* pub_client;
+MQTTClient* sub_client;
+
 int main(int argc, char* argv[])
 {
-    mqtt_open_connection(ADDRESS, CLIENTID);
+    pub_client = mqtt_open_connection(ADDRESS, CLIENT_PID);
+    sub_client = mqtt_open_connection(ADDRESS, CLIENT_SID);
 
-    // mqtt_subscribe(TOPIC, QOS);
+    mqtt_subscribe(sub_client, TOPIC_PUB, QOS);
 
-    mqtt_publish("data/haha", "message", QOS, TIMEOUT);
+    while (1)
+    {
+        printf("Press enter to send message"); getchar();
+
+        mqtt_publish(pub_client, TOPIC_PUB, PAYLOAD, QOS, TIMEOUT);
+    }
 
     return 0;
 }

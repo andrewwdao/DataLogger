@@ -1,9 +1,9 @@
 #include <MQTTClient.h>
 
-int mqtt_open_connection(const char*,const char*);
-int mqtt_disconnect();
+MQTTClient* mqtt_open_connection(const char*,const char*);
+int mqtt_disconnect(MQTTClient*);
 
-int mqtt_subscribe(const char*,int);
-int mqtt_unsubscribe(const char*);
+int mqtt_subscribe(MQTTClient*,const char*,int);
+int mqtt_unsubscribe(MQTTClient*,const char*);
 
-int mqtt_publish(char*,char*,int,int);
+int mqtt_publish(MQTTClient*,char*,char*,int,int);
