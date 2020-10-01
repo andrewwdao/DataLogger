@@ -1,0 +1,2 @@
+https://www.u-blox.com/en/product/sara-u2-series#tab-documentation-resources
+https://github.com/u-blox/Altium-Designer-Library
