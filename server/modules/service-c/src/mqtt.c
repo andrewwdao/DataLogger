@@ -6,8 +6,8 @@
 
 // volatile MQTTClient_deliveryToken deliveredtoken;
 
-int(*message_delivered_handler)(void*, MQTTClient_deliveryToken) = NULL;
-int(* message_arrived_handler)(void*,char*,int,MQTTClient_message) = NULL;
+int(* message_arrived_handler)(void*,char*,int,MQTTClient_message*) = NULL;
+void(*message_delivered_handler)(void*, MQTTClient_deliveryToken) = NULL;
 
 void message_delivered(void *context, MQTTClient_deliveryToken dt)
 {
@@ -22,7 +22,6 @@ int message_arrived(void *context, char *topicName, int topicLen, MQTTClient_mes
     printf("   message: %.*s\n", message->payloadlen, (char*)message->payload);
     MQTTClient_freeMessage(&message);
     MQTTClient_free(topicName);
-    return 1;
 }
 
 void connection_lost(void *context, char *cause)
@@ -45,7 +44,9 @@ MQTTClient* mqtt_open_connection(const char* address, const char* client_id)
         return NULL;
     }
 
-    if ((rc = MQTTClient_setCallbacks(*client, NULL, connection_lost, message_arrived, message_delivered)) != MQTTCLIENT_SUCCESS)
+    if (message_arrived_handler == NULL) message_arrived_handler = message_arrived;
+    if (message_delivered_handler == NULL) message_delivered_handler = message_delivered;
+    if ((rc = MQTTClient_setCallbacks(*client, NULL, connection_lost, message_arrived_handler, message_delivered_handler)) != MQTTCLIENT_SUCCESS)
     {
         printf("Failed to set callbacks, return code %d\n", rc);
         rc = EXIT_FAILURE;
@@ -130,4 +131,14 @@ int mqtt_publish(MQTTClient* client, char* topic, char* payload, int qos, int ti
     rc = MQTTClient_waitForCompletion(*client, deliveredtoken, timeout);
 
     return 0;
+}
+
+void mqtt_set_message_arrived_handler(int(*message_arrived_handler_)(void*,char*,int,MQTTClient_message*))
+{
+    message_arrived_handler = message_arrived_handler_;
+}
+
+void mqtt_set_message_delivered_handler(void(*message_delivered_handler_)(void*, MQTTClient_deliveryToken))
+{
+    message_delivered_handler = message_delivered_handler_;
 }
