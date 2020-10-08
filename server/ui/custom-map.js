@@ -12,9 +12,9 @@ function toggleNodeDetailModal() {
     document.getElementById("node-detail-modal").classList.toggle("show");
 }
 
-function toggleDetailTooltip(sw) {
+function toggleDetailNodeLabel(sw) {
     toggleSwitch(sw);
-    document.getElementById('detail-tooltip-flag').classList.toggle('active');
+    document.getElementById('detail-node-label-flag').classList.toggle('active');
 }
 
 let stations = [
@@ -41,6 +41,15 @@ L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_toke
     accessToken: 'pk.eyJ1IjoiaW5lZWR0b2hhdmVicmVha2Zhc3QyIiwiYSI6ImNrZjEzZTZ6dzEwM3YyenBoMWEwMDF0MzEifQ.bhiK1OFliX2mrcZDmTwq-w'
 }).addTo(mymap);
 
+function bringNodeToFront(station, bringToFront) {
+    let pos = mymap.latLngToLayerPoint(station.marker.getLatLng()).round();
+    // bringToFront = bringToFront || station.marker.isPopupOpen();
+    if (bringToFront) {
+        station.marker.setZIndexOffset(5000 - pos.y);
+    } else {
+        station.marker.setZIndexOffset(pos.y);
+    }
+}
 
 function fetchStationData(station) {
     const fetchUrl = HOST + `/stations/${station.id}/lastest`;
@@ -91,50 +100,38 @@ function addStation(id, name, lat, long) {
         className: "marker",
         iconAnchor: [14, 28],
         popupAnchor: [0, -22],
-        html: `<span class="marker-icon ${active ? 'active' : 'inactive'}"></span>`,
+        html: `
+            <span class="marker-icon ${active ? 'active' : 'inactive'}"></span>
+            <div class="node-label">
+                <div class="header">${id} - ${name}</div>
+                <div class="detail">
+                    <div> 2 thông số: AL, P01 </div>
+                    <div> Cập nhật: 08/10/2020 08:00 PM </div>
+                    <div class="${active ? 'active' : 'inactive'}"> ${active ? 'Đang hoạt động' : 'Mất kết nối'} </div>
+                </div>
+            </div>
+        `,
     });
     station.marker = L.marker([lat, long], {
         icon: markerIcon
-    }).addTo(mymap).on('click', (e) => {
-        fetchStationData(station);
-    });
+    }).addTo(mymap);
 
     station.marker.bindPopup("",
         {
             className: 'node-popup',
             offset: [0, -2],
             autoClose: false,
+            // closeOnClick: false,
         }
     );
     updateStationPopup(station);
 
-    station.marker.bindTooltip(
-        `
-            <div class="header">${id} - ${name}</div>
-            <div class="detail">
-                <div> 2 thông số: AL, P01 </div>
-                <div> Cập nhật: 08/10/2020 08:00 PM </div>
-                <div class="${active ? 'active' : 'inactive'}"> ${active ? 'Đang hoạt động' : 'Mất kết nối'} </div>
-            </div>
-        `, {
-            permanent: true,
-            offset: [0, 5],
-            direction: 'bottom',
-            className: 'node-tooltip',
-            opacity: 0.85,
-            interactive: true, // Listen to events
-            pane: 'markerPane' // Makes tooltips on same pane with markers so they don't stay over marker
-        }
-    );
-
-    station.marker.on("mouseover", () => {
-        let pos = mymap.latLngToLayerPoint(station.marker.getLatLng()).round();
-        station.marker.setZIndexOffset(1 - pos.y);
-        station.marker._tooltip.setOpacity(1);
+    station.marker.on('click', (e) => {
+        fetchStationData(station);
+    }).on("mouseover", () => {
+        bringNodeToFront(station, true);
     }).on("mouseout", () => {
-        let pos = mymap.latLngToLayerPoint(station.marker.getLatLng()).round();
-        station.marker.setZIndexOffset(pos.y);
-        station.marker._tooltip.setOpacity(0.85);
+        bringNodeToFront(station, false);
     });
 }
 
