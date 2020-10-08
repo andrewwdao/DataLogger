@@ -32,67 +32,6 @@
     background-color: #fff;
 }
 
-.nav-item {
-    height: 50px;
-}
-
-.nav-item.active {
-    background-color: #8ca2f5;
-}
-
-#nav-logo {
-    position: absolute;
-    top: 2px;
-    font-size: 155%;
-    font-weight: bold;
-    color: #fff;
-    width: 150px;
-    margin-top: 28px;
-    margin-left: 30px;
-    transition: .2s;
-    left: 60px;
-    text-align: right;
-    opacity: 0;
-}
-
-#nav.show #nav-logo,
-#nav:hover #nav-logo {
-    opacity: 1;
-}
-
-.nav-item-icon {
-    fill: #fff;
-    width: 20px;
-    position: absolute;
-    top: 50%;
-    transform: translate(0, -50%);
-    left: 15px;
-}
-
-.nav-item-label {
-    position: absolute;
-    opacity: 0;
-    left: 25%;
-    top: 50%;
-    transform: translate(0, -50%);
-    transition: .2s;
-    min-width: 200px;
-}
-
-#nav.show .nav-item-label,
-#nav:hover .nav-item-label {
-    opacity: 1;
-}
-
-.nav-item.dropdown::after {
-    opacity: 0;
-}
-
-#nav.show .nav-item.dropdown::after,
-#nav:hover .nav-item.dropdown::after {
-    opacity: 1;
-}
-
 .nav-toggler.sm {
     position: absolute;
     float: left;

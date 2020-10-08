@@ -16,15 +16,22 @@
         <link rel="stylesheet" href="map.css" />
     </head>
     <body>
-        <nav id="nav" class="">
+        <nav id="nav" class="show">
             <div class="nav-toggler" onclick="toggleNav()">
                 <div class="nav-toggler-icon">
                 </div>
             </div>
-            <img src="logo.png" id="nav-logo">
+            <div id="nav-logo">SCADA</div>
             <div id="nav-top-padding"></div>
+            <div class="nav-header">Tùy chỉnh</div>
+            <div class="nav-item nav-item-switch">
+                <span class="nav-item-label">Hiển thị chi tiết</span>
+                <div class="switch-placeholder"></div>
+                <div onclick="toggleDetailTooltip(this)" id="detail-tooltip-switch" class="switch"></div>
+            </div>
+            <div class="nav-header">Các trạm</div>
             <div class="nav-item dropdown" onclick="toggleNavDropdown(this)">
-                NM02 - Nhà máy
+                <span class="nav-item-label no-icon">NM02 - Nhà máy</span>
             </div>
         </nav>
         <div id="page-overlay" class="" onclick="toggleNodeDetailModal()"></div>
@@ -49,6 +56,7 @@
             </div>
         </div>
         <div id="main">
+            <div id="detail-tooltip-flag"></div>
             <div id="main-map"></div>
         </div>
         <script src="site.js"></script>
