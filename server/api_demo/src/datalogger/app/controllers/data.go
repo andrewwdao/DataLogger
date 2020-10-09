@@ -18,7 +18,7 @@ func (c Data) Stations() revel.Result{
 	return c.RenderJSON(stationList)
 }
 
-func (c Data) LastestData(code string) revel.Result{
+func (c Data) LatestData(code string) revel.Result{
 	data := getLastestData(code)
 	c.Response.Out.Header().Add("Access-Control-Allow-Origin","*")
 	if data != nil{
@@ -37,6 +37,10 @@ func (c Data) TimeRangeData(code string) revel.Result{
 		return c.RenderJSON(map[string]string{"detail": "Bad request"})
 	}
 	if end, err = strconv.ParseInt(c.Params.Query.Get("end"), 10, 64); err != nil {
+		c.Response.Status = 400
+		return c.RenderJSON(map[string]string{"detail": "Bad request"})
+	}
+	if start > end {
 		c.Response.Status = 400
 		return c.RenderJSON(map[string]string{"detail": "Bad request"})
 	}
