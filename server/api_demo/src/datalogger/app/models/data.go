@@ -1,14 +1,13 @@
 package models
 
 import (
-	"time"
 	"errors"
 	"encoding/json"
 	"database/sql/driver"
 )
 
 type Data struct{
-	Timestamp time.Time `json:"timestamp"`
+	Timestamp int64 `json:"timestamp"`
 	Payload DataPayload `json:"payload"`
 }
 
