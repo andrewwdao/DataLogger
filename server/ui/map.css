@@ -34,6 +34,10 @@
 				    		MAP
 =======================================================*/
 
+#nav.show ~ #main {
+    left: 280px;
+}
+
 #main-map {
     position: absolute;
     top: 0;

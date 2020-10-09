@@ -209,11 +209,6 @@ body {
     max-width: 60%;
 }
 
-#nav.show ~ #main {
-    left: 280px;
-    /* transform: translate(280px, 0); */
-}
-
 .nav-item.dropdown .sub-menu {
     visibility: hidden;
 }
@@ -234,6 +229,51 @@ body {
     height: 30px;
     top: 8px;
     right: 10px;
+}
+
+/* ================= SEARCH BAR ================= */
+
+.dropdown-container.nav-search-container {
+    padding: 0;
+}
+
+.nav-search-container input.nav-search-input {
+    border-radius: 5px;
+    outline: 0;
+    border: 1px solid lightgrey;
+    padding: 5px;
+    display: block;
+    width: 100%;
+    margin: auto;
+    background-color: #333;
+    color: #eee;
+    transition: .2s;
+}
+
+.nav-search-container input.nav-search-input::placeholder {
+    color: #ccc;
+}
+
+.nav-search-container input.nav-search-input:hover::placeholder {
+    color: #333;
+}
+
+.nav-search-container input.nav-search-input:focus::placeholder {
+    color: #111;
+}
+
+.nav-search-container input.nav-search-input:hover {
+    color: #333;
+    background-color: #ccc;
+    padding-left: 10px;
+    border: 1px solid lightgrey; /* overriding .dropdown-container input */
+}
+
+.nav-search-container input.nav-search-input:focus {
+    color: #111;
+    background-color: #eee;
+    padding-left: 15px;
+    border: 1px solid lightgrey; /* overriding .dropdown-container input */
 }
 
 /* ======================================================
@@ -397,7 +437,7 @@ th.center, td.center {
 
 
 /* ======================================================
-				       	SWTICH
+				       	SWITCH
 =======================================================*/
 
 .switch {
@@ -521,37 +561,75 @@ th.center, td.center {
     transform: rotate(-45deg);
 }
 
-.select-container {
+.dropdown-container {
     display: inline-block;
     position: relative;
     left: 50%;
-    padding: 8px 5px;
+    padding: 0px 5px;
     padding-left: 3%;
     transform: translate(-50%, 0);
     margin-bottom: 15px;
     z-index: 1;
     text-align: left;
-    border-bottom: 3px solid lightgrey;
 }
 
-.select-container::before {
-    content: '';
-    position: absolute;
-    background-color: #427ded;
-    height: 3px;
+.dropdown-container .options {
     width: 100%;
-    height: 3px;
-    left: 50%;
-    bottom: -4px;
-    transform: translate(-50%, 0) scaleX(0) scaleY(0);
+    visibility: hidden;
+    position: absolute;
+    left: 0;
+    top: 90%;
+    background-color: #fff;
+    padding: 5px;
+    transition: .2s;
+    margin: 5px 0;
+    box-shadow: 2px 2px 10px grey;
+    text-align: left;
+    transform: scaleY(0);
+    overflow: auto;
+    cursor: default;
+}
+
+.dropdown-container:hover .options,
+.dropdown-container :focus ~ .options,
+.options:hover {
+    visibility: visible;
+    transform: scaleY(1);
+}
+
+.dropdown-container .options .option {
+    padding: 10px;
+}
+
+.dropdown-container .options .option:hover {
+    background-color: lightgrey;
+}
+
+
+.dropdown-container input {
+    position: relative;
+    display: block;
+    padding: 8px 0;
+    padding-left: 10px;
+    height: 100%;
+    border: 0;
+    outline: 0;
+    margin: 0;
+    border-bottom: 3px solid lightgrey;
+    width: 100%;
     transition: .2s;
 }
 
-.select-container:hover::before {
-    transform: translate(-50%, 0) scaleX(1) scaleY(1);
+.dropdown-container input:hover,
+.dropdown-container input:focus {
+    border-bottom: 3px solid #427ded;
+    padding-left: 15px;
 }
 
-.select-container::after {
+.dropdown-container input:focus { padding-left: 20px; }
+
+
+.triangle::after {
     content: '';
     border: 5px solid #fff;
     border-top: 5px solid #333;
@@ -560,34 +638,6 @@ th.center, td.center {
     right: 5%;
 }
 
-.select-container .options {
-    width: 100%;
-    visibility: hidden;
-    position: absolute;
-    left: 0;
-    top: 110%;
-    background-color: #fff;
-    padding: 5px;
-    transition: .2s;
-    margin: 5px 0;
-    box-shadow: 2px 2px 10px grey;
-    text-align: left;
-    transform: scaleY(0);
-}
-
-.select-container:hover .options,
-.options:hover {
-    visibility: visible;
-    transform: scaleY(1);
-}
-
-.select-container .options .option {
-    padding: 10px;
-}
-
-.select-container .options .option:hover {
-    background-color: lightgrey;
-}
 
 /* [class*="col-"] {
 } */
