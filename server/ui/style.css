@@ -483,6 +483,8 @@ th.center, td.center {
 =======================================================*/
 
 .btn {
+    cursor: pointer;
+    user-select: none;
     display: inline-block;
     border: 0;
     outline: 0;
@@ -590,7 +592,7 @@ th.center, td.center {
     cursor: default;
 }
 
-.dropdown-container:hover .options,
+/* .dropdown-container:hover .options, */
 .dropdown-container :focus ~ .options,
 .options:hover {
     visibility: visible;

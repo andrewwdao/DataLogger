@@ -24,18 +24,54 @@ function togglePageOverlay() {
     document.getElementById("page-overlay").classList.toggle("show");
 }
 
-function toggleNodeDetailModal() {
+
+/* ======================================================
+				    	 MODAL
+=======================================================*/
+let currentModalStationId = null;
+
+function fetchHistoryData() {
+    let startTimestamp = (document.getElementById("start-date-input").valueAsNumber + document.getElementById("start-time-input").valueAsNumber)/1000;
+    let endTimestamp = (document.getElementById("end-date-input").valueAsNumber + document.getElementById("end-time-input").valueAsNumber)/1000;
+    
+    if (!isNaN(startTimestamp) && !isNaN(endTimestamp) && currentModalStationId) {
+        const fetchUrl = `http://datalogger.ddns.net:8080/stations/${currentModalStationId}/data?start=${startTimestamp}&end=${endTimestamp}`;
+        fetch(fetchUrl).then(res => {
+            if (Math.floor(res.status/100) != 2) {
+                console.log("Unexpected error fetching " + fetchUrl);
+                return "";
+            } else {
+                return res.json();
+            }
+        }).then( data => {
+            if (data) {
+                console.log(data);
+            }
+        });
+    } else {
+        alert("Enter start and end date time");
+    }
+}
+
+function toggleStationDetailModal(stationId) {
+    currentModalStationId = stationId;
     togglePageOverlay();
-    document.getElementById("page-overlay").onclick = () => {toggleNodeDetailModal()};
+    document.getElementById("page-overlay").onclick = () => {toggleStationDetailModal()};
     document.getElementById("node-detail-modal").classList.toggle("show");
 }
 
-function toggleDetailNodeLabel(sw) {
+
+
+/* ======================================================
+				    	 MAP
+=======================================================*/
+
+function toggleDetailStationLabel(sw) {
     toggleSwitch(sw);
     document.getElementById('detail-node-label-flag').classList.toggle('active');
 }
 
-function updateNavNodeSearchOptions(filter) {
+function updateNavStationSearchOptions(filter) {
     let options = document.getElementById("nav-node-search-options");
     options.innerHTML = '';
     stations.forEach(station => {
@@ -71,7 +107,7 @@ L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_toke
     accessToken: 'pk.eyJ1IjoiaW5lZWR0b2hhdmVicmVha2Zhc3QyIiwiYSI6ImNrZjEzZTZ6dzEwM3YyenBoMWEwMDF0MzEifQ.bhiK1OFliX2mrcZDmTwq-w'
 }).addTo(mymap);
 
-function bringNodeToFront(station, bringToFront) {
+function bringStationToFront(station, bringToFront) {
     let pos = mymap.latLngToLayerPoint(station.marker.getLatLng()).round();
     // bringToFront = bringToFront || station.marker.isPopupOpen();
     if (bringToFront) {
@@ -82,7 +118,7 @@ function bringNodeToFront(station, bringToFront) {
 }
 
 function fetchStationData(station) {
-    const fetchUrl = HOST + `/stations/${station.id}/lastest`;
+    const fetchUrl = HOST + `/stations/${station.id}/latest`;
     fetch(fetchUrl).then(res => res.json()).then(
         data => {
             station.data = data;
@@ -118,12 +154,12 @@ function updateStationPopup(station) {
                 <span class="value">${station.lastUpdate ? station.lastUpdate : 'Chưa có thông tin'}</span>
             </div>-->
             ${stationData}
-            <div onclick="toggleNodeDetailModal()" class="footer">Thêm thông tin</div>
+            <div onclick="toggleStationDetailModal('${station.id}')" class="footer">Thêm thông tin</div>
         <div class="footer-float-fix">a</div>
     `);
 }
 
-function addStation(id, name, lat, lng) {
+function addStation(id, name, lat, lng, params) {
     let active = Math.random() >= 0.3;
 
     let station = {
@@ -146,7 +182,7 @@ function addStation(id, name, lat, lng) {
             <div class="node-label">
                 <div class="header">${id} - ${name}</div>
                 <div class="detail">
-                    <div> 2 thông số: AL, P01 </div>
+                    <div> ${params.length} thông số: ${params.map(param => param.toUpperCase()).join(", ")} </div>
                     <div> Cập nhật: 08/10/2020 08:00 PM </div>
                     <div class="${active ? 'active' : 'inactive'}"> ${active ? 'Đang hoạt động' : 'Mất kết nối'} </div>
                 </div>
@@ -170,9 +206,9 @@ function addStation(id, name, lat, lng) {
     station.marker.on('click', (e) => {
         fetchStationData(station);
     }).on("mouseover", () => {
-        bringNodeToFront(station, true);
+        bringStationToFront(station, true);
     }).on("mouseout", () => {
-        bringNodeToFront(station, false);
+        bringStationToFront(station, false);
     });
 }
 
@@ -189,11 +225,12 @@ function fetchStations() {
         }
     ).then(
         fStations => {
+            console.log(fStations);
             if (fStations) {
                 fStations.forEach(station => {
-                    addStation(station['station_code'], station['station_address'], station['station_latitude'], station['station_longitude']);
+                    addStation(station['station_code'], station['station_address'], station['station_latitude'], station['station_longitude'], station['station_params']);
                 });
-                updateNavNodeSearchOptions();
+                updateNavStationSearchOptions();
             }
         }
     );
@@ -204,7 +241,7 @@ fetchStations();
 windowResize();
 window.addEventListener("resize", windowResize);
 document.getElementById("nav-node-search-input").addEventListener("keyup", () => {
-    updateNavNodeSearchOptions(document.getElementById("nav-node-search-input").value);
+    updateNavStationSearchOptions(document.getElementById("nav-node-search-input").value);
 });
 
 // var popup = L.popup()
@@ -212,3 +249,191 @@ document.getElementById("nav-node-search-input").addEventListener("keyup", () =>
 //     .setContent('<p>Hello world!<br />This is a nice popup.</p>')
 //     .openOn(mymap)
 //     .openPopup();
+
+
+/* ======================================================
+				    	 CHART
+=======================================================*/
+
+function customTooltip(tooltipModel) {
+    // Tooltip Element
+    var tooltipEl = document.getElementById('chartjs-tooltip');
+
+    // Create element on first render
+    if (!tooltipEl) {
+        tooltipEl = document.createElement('div');
+        tooltipEl.id = 'chartjs-tooltip';
+        tooltipEl.innerHTML = '<table></table>';
+        document.body.appendChild(tooltipEl);
+    }
+
+    // Hide if no tooltip
+    if (tooltipModel.opacity === 0) {
+        tooltipEl.style.opacity = 0;
+        return;
+    }
+
+    // Set caret Position
+    tooltipEl.classList.remove('above', 'below', 'no-transform');
+    if (tooltipModel.yAlign) {
+        tooltipEl.classList.add(tooltipModel.yAlign);
+    } else {
+        tooltipEl.classList.add('no-transform');
+    }
+
+    function getBody(bodyItem) {
+        return bodyItem.lines;
+    }
+
+    // Set Text
+    if (tooltipModel.body) {
+        var titleLines = tooltipModel.title || [];
+        var bodyLines = tooltipModel.body.map(getBody);
+
+        var innerHtml = '<thead>';
+
+        titleLines.forEach(function(title) {
+            innerHtml += '<tr><th>' + title + '</th></tr>';
+        });
+        innerHtml += '</thead><tbody>';
+
+        bodyLines.forEach(function(body, i) {
+            var colors = tooltipModel.labelColors[i];
+            var style = 'background:' + colors.backgroundColor;
+            style += '; border-color:' + colors.borderColor;
+            style += '; border-width: 2px';
+            var span = '<span style="' + style + '"></span>';
+            innerHtml += '<tr><td>' + span + body + '</td></tr>';
+        });
+        innerHtml += '</tbody>';
+
+        var tableRoot = tooltipEl.querySelector('table');
+        tableRoot.innerHTML = innerHtml;
+    }
+
+    // `this` will be the overall tooltip
+    var position = this._chart.canvas.getBoundingClientRect();
+
+    // Display, position, and set styles for font
+    tooltipEl.style.opacity = 1;
+    tooltipEl.style.position = 'absolute';
+    tooltipEl.style.left = position.left + window.pageXOffset + tooltipModel.caretX + 'px';
+    tooltipEl.style.top = position.top + window.pageYOffset + tooltipModel.caretY + 'px';
+    tooltipEl.style.fontFamily = tooltipModel._bodyFontFamily;
+    tooltipEl.style.fontSize = tooltipModel.bodyFontSize + 'px';
+    tooltipEl.style.fontStyle = tooltipModel._bodyFontStyle;
+    tooltipEl.style.padding = tooltipModel.yPadding + 'px ' + tooltipModel.xPadding + 'px';
+    tooltipEl.style.pointerEvents = 'none';
+}
+
+
+/* ======================================================
+				        MODAL CHART
+=======================================================*/
+
+var ctx = document.getElementById('chart').getContext('2d');
+
+var chartData = [];
+var chartData2 = [];
+var chartLabels = [];
+for (let i = 0; i < 200; i++) {
+    chartData.push(Number((Math.random()*0.3 + 1).toFixed(1)));
+    chartData2.push(Number((Math.random()*150 + 10).toFixed(1)));
+    chartLabels.push(new Date().toLocaleTimeString());
+}
+
+var data = {
+    labels: chartLabels,
+    datasets: [
+        {
+            label: 'P02',
+            data: chartData,
+            // backgroundColor: 'rgba(0, 0, 0, 0)',
+            backgroundColor: '#d8e3f0',
+            borderColor: '#1e39e8',
+            borderWidth: 1,
+            lineTension: 0.1,
+            pointRadius: 0,
+            yAxisID: 'P02',
+            fill: false,
+        },
+        {
+            label: 'Flow',
+            data: chartData2,
+            // backgroundColor: 'rgba(0, 0, 0, 0)',
+            backgroundColor: '#edb4da',
+            borderColor: '#e81ea5',
+            borderWidth: 1,
+            lineTension: 0.1,
+            pointRadius: 0,
+            yAxisID: 'Flow',
+            fill: false,
+        }
+    ]
+}
+
+var options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    tooltips: {
+        // enabled: false,
+        // custom: customTooltip,
+        mode: 'nearest',
+        intersect: false,
+    },
+    hover: {
+      mode: 'nearest',
+      intersect: false
+    },
+    scales: {
+        yAxes: [
+            {
+                id: 'P02',
+                position: 'left',
+                ticks: {
+                    beginAtZero: true,
+                    suggestedMax: 2.5,
+                }
+            },
+            {
+                id: 'Flow',
+                position: 'right',
+                ticks: {
+                    beginAtZero: true,
+                    suggestedMax: 180,
+                }
+            }
+        ],
+        xAxes: [{
+            ticks: {
+                maxRotation: 0,
+                autoSkipPadding: 100
+            }
+        }]
+    },
+
+    onHover: function onHover (evt, activeElements) {
+        var datasetIndex;
+        if (!activeElements || !activeElements.length) {
+            datasetIndex = -1;
+        } else {
+            datasetIndex = activeElements[0]._datasetIndex;
+        }
+
+        for (let i = 0; i < this.data.datasets.length; i++) {
+            if (datasetIndex != i)
+                this.data.datasets[i].borderWidth = 1;
+            else
+                this.data.datasets[i].borderWidth = 2;
+        }
+        this.update();
+    },
+}
+
+var chartConfig = {
+    type: 'line',
+    data: data,
+    options: options,
+}
+
+var myLineChart = new Chart(ctx, chartConfig);
