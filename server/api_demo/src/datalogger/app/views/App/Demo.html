@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Scada</title>
+
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin=""/>
+        <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.28.0/moment.min.js" integrity="sha512-Q1f3TS3vSt1jQ8AwP2OuenztnLU6LwxgyyYOG1jgMW/cbEMHps/3wjvnl1P3WTrF3chJUWEoxDUEjMxDV8pujg==" crossorigin="anonymous"></script>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js" integrity="sha512-s+xg36jbIujB2S2VKfpGmlC3T5V2TF3lY48DX7u2r9XzGzgPsa6wTpOQA7J9iffvdeBN0q9tKzRxVxw1JviZPg==" crossorigin="anonymous"></script>
+
+        <link rel="stylesheet" href="public/css/demo/style.css" />
+        <link rel="stylesheet" href="public/css/demo/map.css" />
+    </head>
+    <body>
+        <nav id="nav" class="show">
+            <div class="nav-toggler" onclick="toggleNav()">
+                <div class="nav-toggler-icon">
+                </div>
+            </div>
+            <div id="nav-logo">SCADA</div>
+            <div id="nav-top-padding"></div>
+            
+            <div class="nav-search-container dropdown-container col-10-sm">
+                <input id="nav-node-search-input" placeholder="Tìm địa điểm..." type="text" class="nav-search-input">
+                <div id="nav-node-search-options" class="options">
+                    <!-- <div class="option">CT30 - D.114 - Cuối TL 918 Long Hòa</div>
+                    <div class="option">CT29 - D.200 - 366C CMT8</div>
+                    <div class="option">CT31 - D.114 - 30A tổ 2 Bông Vang Bình Thường A</div> -->
+                </div>
+            </div>
+            <div class="nav-header">Tùy chỉnh</div>
+            <div class="nav-item nav-item-switch">
+                <span class="nav-item-label">Hiển thị chi tiết</span>
+                <div class="switch-placeholder"></div>
+                <div onclick="toggleDetailStationLabel(this)" class="switch"></div>
+            </div>
+            <div class="nav-header">Các trạm</div>
+            <div class="nav-item dropdown" onclick="toggleNavDropdown(this)">
+                <span class="nav-item-label no-icon">Example</span>
+            </div>
+        </nav>
+        <div id="page-overlay" class="" onclick="toggleStationDetailModal()"></div>
+        <div id="node-detail-modal" class="modal">
+            <div class="close-btn"></div>
+            <div id="node-detail-modal-header" class="modal-header">Thống kê CT33-D114. Lê Thị Hồng Gấm</div>
+            <div class="time-filter">
+                <div class="time-filter-group">
+                    <span class="label">Từ</span>
+                    <input id="start-date-input" class="date-input" type="date">
+                    <input id="start-time-input" class="time-input" type="time">
+                </div>
+                <div class="time-filter-group">
+                    <span class="label">Đến</span>
+                    <input id="end-date-input" class="date-input" type="date">
+                    <input id="end-time-input" class="time-input" type="time">
+                </div>
+                <a onclick="fetchHistoryData()" class="btn">Xem</a>
+                <a href="detail.html" class="btn">Xem bảng dữ liệu</a>
+            </div>
+            <div id="chart-container" class="chart-container">
+            </div>
+        </div>
+        <div id="main">
+            <div id="detail-node-label-flag"></div>
+            <div id="main-map"></div>
+        </div>
+        <script src="public/js/demo/site.js"></script>
+        <script src="public/js/demo/custom-map.js"></script>
+    </body>
+</html>
