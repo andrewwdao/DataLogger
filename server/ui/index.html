@@ -16,7 +16,7 @@
         <link rel="stylesheet" href="css/map.css" />
     </head>
     <body>
-        <nav id="nav" class="">
+        <nav id="nav" class="show">
             <div class="nav-toggler" onclick="toggleNav()">
                 <div class="nav-toggler-icon">
                 </div>
@@ -38,9 +38,15 @@
                 <div class="switch-placeholder"></div>
                 <div onclick="toggleDetailStationLabel(this)" class="switch"></div>
             </div>
-            <div class="nav-header">Các trạm</div>
-            <div class="nav-item dropdown" onclick="toggleNavDropdown(this)">
-                <span class="nav-item-label no-icon">Example</span>
+            <div class="nav-header" id="dma-nav-header">Các trạm</div>
+            <div class="nav-item nav-dropdown" onclick="toggleNavDropdown(this)">
+                <span class="nav-item-label label-no-icon">Example</span>
+            </div>
+            <div class="nav-item nav-dropdown" onclick="toggleNavDropdown(this)">
+                <span class="nav-item-label label-no-icon">Example</span>
+            </div>
+            <div class="nav-item nav-dropdown" onclick="toggleNavDropdown(this)">
+                <span class="nav-item-label label-no-icon">Example</span>
             </div>
         </nav>
         <div id="page-overlay" class="" onclick="toggleStationDetailModal()"></div>

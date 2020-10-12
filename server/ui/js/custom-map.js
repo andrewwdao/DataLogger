@@ -15,6 +15,8 @@ let stations = [
     // }
 ];
 
+let zones = {};
+
 function windowResize() {
     let options = document.getElementById("nav-node-search-options");
     options.style.maxHeight = Math.min(window.innerHeight - options.offsetTop - 100, 300) + "px";
@@ -313,6 +315,7 @@ function fetchStations() {
         }
     ).then(
         fStations => {
+            console.log(fStations);
             if (fStations) {
                 fStations.forEach(station => {
                     addStation(station['station_code'], station['station_address'], station['station_latitude'], station['station_longitude'], station['station_params']);
@@ -322,6 +325,29 @@ function fetchStations() {
         }
     );
 }
+
+function fetchZones() {
+    const fetchUrl = HOST + '/zones';
+    fetch(fetchUrl).then(
+        res => {
+            if (Math.floor(res.status/100) != 2) {
+                console.log("Unexpected error fetching " + fetchUrl);
+                return "";
+            } else {
+                return res.json();
+            }
+        }
+    ).then( fZones => {
+        console.log(fZones);
+        if (fZones) {
+            fZones.forEach(zone => {
+                zones['zone_id'] = zone;
+            });
+        }
+    });
+}
+
+fetchZones();
 
 // addStation('CT33', 'D114. Lê Thị Hồng Gấm', 10.05, 105.74);
 fetchStations();
