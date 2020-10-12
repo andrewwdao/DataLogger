@@ -16,7 +16,7 @@
         <link rel="stylesheet" href="css/map.css" />
     </head>
     <body>
-        <nav id="nav" class="show">
+        <nav id="nav" class="">
             <div class="nav-toggler" onclick="toggleNav()">
                 <div class="nav-toggler-icon">
                 </div>
@@ -27,9 +27,6 @@
             <div class="nav-search-container dropdown-container col-10-sm">
                 <input id="nav-node-search-input" placeholder="Tìm địa điểm..." type="text" class="nav-search-input">
                 <div id="nav-node-search-options" class="options">
-                    <!-- <div class="option">CT30 - D.114 - Cuối TL 918 Long Hòa</div>
-                    <div class="option">CT29 - D.200 - 366C CMT8</div>
-                    <div class="option">CT31 - D.114 - 30A tổ 2 Bông Vang Bình Thường A</div> -->
                 </div>
             </div>
             <div class="nav-header">Tùy chỉnh</div>
@@ -38,15 +35,8 @@
                 <div class="switch-placeholder"></div>
                 <div onclick="toggleDetailStationLabel(this)" class="switch"></div>
             </div>
-            <div class="nav-header" id="dma-nav-header">Các trạm</div>
-            <div class="nav-item nav-dropdown" onclick="toggleNavDropdown(this)">
-                <span class="nav-item-label label-no-icon">Example</span>
-            </div>
-            <div class="nav-item nav-dropdown" onclick="toggleNavDropdown(this)">
-                <span class="nav-item-label label-no-icon">Example</span>
-            </div>
-            <div class="nav-item nav-dropdown" onclick="toggleNavDropdown(this)">
-                <span class="nav-item-label label-no-icon">Example</span>
+            <div class="nav-header">Các trạm</div>
+            <div id="dma-nav-container">
             </div>
         </nav>
         <div id="page-overlay" class="" onclick="toggleStationDetailModal()"></div>
@@ -67,8 +57,7 @@
                 <a onclick="fetchHistoryData()" class="btn">Xem</a>
                 <a href="detail.html" class="btn">Xem bảng dữ liệu</a>
             </div>
-            <div id="chart-container" class="chart-container">
-            </div>
+            <div id="chart-container" class="chart-container"></div>
         </div>
         <div id="main">
             <div id="detail-node-label-flag"></div>
