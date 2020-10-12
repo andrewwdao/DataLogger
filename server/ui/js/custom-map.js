@@ -133,13 +133,14 @@ function fetchHistoryData() {
                 createChart(data);
             }
         });
-    } else {
+    } else if (currentModalStationId) {
         alert("Enter start and end date time");
     }
 }
 
 function toggleStationDetailModal(stationId) {
     currentModalStationId = stationId;
+    fetchHistoryData();
     togglePageOverlay();
     document.getElementById("page-overlay").onclick = () => {toggleStationDetailModal()};
     document.getElementById("node-detail-modal").classList.toggle("show");

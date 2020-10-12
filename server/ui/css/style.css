@@ -307,8 +307,26 @@ body {
     visibility: visible;
 }
 
-.modal .close-btn {
-    width: 5px;
+.modal .close-btn,
+.modal .close-btn:after {
+    width: 25px;
+    height: 5px;
+    background: grey;
+    position: absolute;
+    top: 25px;
+    top: min(8%, 25px);
+    right: 10px;
+    right: min(5%, 10px);
+    border-radius: 5px;
+    transform: rotate(135deg);
+    cursor: pointer;
+}
+
+.modal .close-btn:after {
+    top: 0;
+    right: 0;
+    content: '';
+    transform: rotate(90deg);
 }
 
 .modal .modal-header {
