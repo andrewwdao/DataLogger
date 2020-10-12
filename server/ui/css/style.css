@@ -20,7 +20,7 @@ body {
     width: 280px;
     background-color: #8bd0f0;
     background-color: #333;
-    transition: .3s;
+    transition: .2s;
     overflow-x: hidden;
 }
 
@@ -333,7 +333,7 @@ body {
     max-height: 90%;
     position: absolute;
     transform: translate(-50%, 1000px);
-    transition: .3s;
+    transition: .2s;
     border-radius: 10px;
     padding: 20px;
     padding: 20px min(2%, 20px);
@@ -758,7 +758,7 @@ th.center, td.center {
     width: 100vw;
     height: 100%;
     height: 100vh;
-    transition: .3s;
+    transition: .2s;
     visibility: hidden;
 }
 
