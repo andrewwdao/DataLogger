@@ -105,7 +105,6 @@ function createChart(data) {
         }
 
         let chart = new Chart(ctx, chartConfig);
-        console.log(chart.data);
     });
 
 }
@@ -131,7 +130,6 @@ function fetchHistoryData() {
             }
         }).then( data => {
             if (data && data.length) {
-                console.log(data);
                 createChart(data);
             }
         });
@@ -210,6 +208,7 @@ function fetchStationData(station) {
         data => {
             station.data = data;
             updateStationPopup(station);
+            if (!station.marker.isPopupOpen()) station.marker.openPopup();
         }
     );
 }
@@ -244,6 +243,7 @@ function updateStationPopup(station) {
             <div onclick="toggleStationDetailModal('${station.id}')" class="footer">Thêm thông tin</div>
         <div class="footer-float-fix">a</div>
     `);
+
 }
 
 function addStation(id, name, lat, lng, params) {
@@ -312,7 +312,6 @@ function fetchStations() {
         }
     ).then(
         fStations => {
-            console.log(fStations);
             if (fStations) {
                 fStations.forEach(station => {
                     addStation(station['station_code'], station['station_address'], station['station_latitude'], station['station_longitude'], station['station_params']);
