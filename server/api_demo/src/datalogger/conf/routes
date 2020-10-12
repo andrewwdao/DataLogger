@@ -9,7 +9,8 @@ module:testrunner
 
 GET     /                                       App.Index
 GET     /stations                               Data.Stations
-GET     /stations/:code/lastest                 Data.LastestData
+GET     /stations/:code/latest                  Data.LatestData
+GET     /stations/:code/data                    Data.TimeRangeData
 
 # Ignore favicon requests
 GET     /favicon.ico                            404

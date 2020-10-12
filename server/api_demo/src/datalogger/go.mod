@@ -9,6 +9,7 @@ require (
 	github.com/lib/pq v1.1.1
 	github.com/mattn/go-colorable v0.1.8 // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
+	github.com/revel/cmd v1.0.3 // indirect
 	github.com/revel/config v1.0.0 // indirect
 	github.com/revel/modules v1.0.0
 	github.com/revel/revel v1.0.0

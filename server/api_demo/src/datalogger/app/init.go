@@ -19,7 +19,7 @@ var (
 )
 
 func initDB(){
-    connstring := fmt.Sprintf("host= %s user=%s password='%s' dbname=%s sslmode=disable", "datalogger.ddns.net", "postgres", "admin123", "test")
+    connstring := fmt.Sprintf("host= %s user=%s password='%s' dbname=%s sslmode=disable", "localhost", "postgres", "admin123", "test")
 
     var err error
     DB, err = sql.Open("postgres", connstring)
