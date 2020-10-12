@@ -6,6 +6,7 @@ import (
 	"github.com/revel/revel"
 	"datalogger/app"
 	"datalogger/app/models"
+	"github.com/lib/pq"
 )
 
 type Data struct {
@@ -31,6 +32,7 @@ func (c Data) LatestData(code string) revel.Result{
 func (c Data) TimeRangeData(code string) revel.Result{
 	var start, end int64
 	var err error
+	c.Response.Out.Header().Add("Access-Control-Allow-Origin","*")
 
 	if start, err = strconv.ParseInt(c.Params.Query.Get("start"), 10, 32); err != nil {
 		c.Response.Status = 400
@@ -56,7 +58,7 @@ func (c Data) TimeRangeData(code string) revel.Result{
 func getAllStation() []models.Station{
 	stationList := make([]models.Station, 0)
 	
-	sql := "SELECT station_code, station_address, station_longitude, station_latitude FROM stations"
+	sql := "SELECT station_code, station_address, station_longitude, station_latitude, array (select json_object_keys(sensor_parameters))as station_params FROM stations;"
 
 	rows, err := app.DB.Query(sql)
 	if err != nil{
@@ -68,7 +70,7 @@ func getAllStation() []models.Station{
 	for rows.Next(){
 		var instance models.Station
 		err := rows.Scan(&instance.StationCode, &instance.StationAddress, 
-			&instance.StationLongitude, &instance.StationLatitude)
+			&instance.StationLongitude, &instance.StationLatitude, pq.Array(&instance.StationParams))
 		if err != nil{
 			panic(err)
 		}
