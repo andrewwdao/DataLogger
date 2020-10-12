@@ -280,32 +280,38 @@ body {
 				       		MODAL
 =======================================================*/
 
-#node-detail-modal {
+.modal {
     width: 80%;
     background-color: white;
     top: 0;
     left: 50%;
-    bottom: 5%;
-    bottom: min(120px, 5%);
+    /* bottom: 5%;
+    bottom: min(120px, 5%); */
+    max-height: 90%;
     position: absolute;
     transform: translate(-50%, 1000px);
     transition: .3s;
     border-radius: 10px;
     padding: 20px;
+    padding: 20px min(2%, 20px);
     color: grey;
     /* margin-top: 30px; */
     margin-top: 3%;
-    margin-top: min(60px, 3%);
+    margin-top: min(30px, 3%);
     overflow: auto;
     visibility: hidden;
 }
 
-#node-detail-modal.show {
+.modal.show {
     transform: translate(-50%, 0);
     visibility: visible;
 }
 
-#node-detail-modal-header {
+.modal .close-btn {
+    width: 5px;
+}
+
+.modal .modal-header {
     text-transform: uppercase;
     font-weight: bold;
     margin-bottom: 30px;

@@ -44,8 +44,9 @@
             </div>
         </nav>
         <div id="page-overlay" class="" onclick="toggleStationDetailModal()"></div>
-        <div id="node-detail-modal" class="">
-            <div id="node-detail-modal-header">Thống kê CT33-D114. Lê Thị Hồng Gấm</div>
+        <div id="node-detail-modal" class="modal">
+            <div class="close-btn"></div>
+            <div id="node-detail-modal-header" class="modal-header">Thống kê CT33-D114. Lê Thị Hồng Gấm</div>
             <div class="time-filter">
                 <div class="time-filter-group">
                     <span class="label">Từ</span>
@@ -60,8 +61,7 @@
                 <a onclick="fetchHistoryData()" class="btn">Xem</a>
                 <a href="detail.html" class="btn">Xem bảng dữ liệu</a>
             </div>
-            <div class="chart-container">
-                <canvas id="chart"></canvas>
+            <div id="chart-container" class="chart-container">
             </div>
         </div>
         <div id="main">
