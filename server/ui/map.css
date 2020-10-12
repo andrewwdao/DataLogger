@@ -3,7 +3,7 @@
 =======================================================*/
 #nav.show .nav-toggler {
     background-color: #8bd0f0;
-    /* background-color: #333; */
+    background-color: #333;
     transform: translate(-35px, 0);
 }
 
@@ -12,14 +12,19 @@
 				       	CHART
 =======================================================*/
 
-#node-detail-modal #chart {
+#node-detail-modal .chart {
     height: 400px;
 }
 
 
 
 /* ======================================================
-				       		MODAL
+                          MODAL
+=======================================================*/
+
+
+/* ======================================================
+				       	 SWITCH
 =======================================================*/
 
 
@@ -28,29 +33,81 @@
 				    		MAP
 =======================================================*/
 
+#nav.show ~ #main {
+    left: 280px;
+}
+
 #main-map {
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    bottom: 0;
+    right: 0;
     z-index: -1;
 }
 
-.node-tooltip {
-    background-color: rgba(255, 255, 255, 0.8);
+/* ======================================================
+				        NODE LABEL
+=======================================================*/
+
+.node-label {
+    position: absolute;
+    top: 38px;
+    left: 14px;
+    transform: translate(-50%, 0);
+    border-radius: 5px;
+    background-color: #fff;
+    font-weight: bold;
+    text-align: left;
+    padding: 5px 10px 10px 10px;
+    white-space: nowrap;
+    opacity: 0.85;
+    box-shadow: 2px 2px 10px grey;
+}
+
+.marker:hover ~ .node-label,
+.node-label:hover {
+    z-index: 5000;
+    opacity: 1;
+}
+
+.node-label .header {
+    font-size: 115%;
+    font-weight: bolder;
     text-align: center;
 }
 
-.node-tooltip::before {
-    display: none;
+#detail-node-label-flag.active ~ #main-map .marker .node-label .header {
+    margin-bottom: 10px;
 }
 
+.node-label .active { color: green; }
+.node-label .inactive { color: red; }
+
+#detail-node-label-flag ~ #main-map .marker .node-label .detail {
+    transform: scaleY(0) translate(0, -100%);
+    height: 0;
+    transition: .1s;
+}
+
+#detail-node-label-flag.active ~ #main-map .marker .node-label .detail {
+    transform: scaleY(1);
+    height: unset;
+}
+
+
+/* ======================================================
+				    	 POPUP
+=======================================================*/
+
 .node-popup {
+    min-width: 20rem;
     padding: 0px;
 }
 
 .node-popup .header {
+    text-align: center;
+    width: 100%;
     border-radius: 10px;
     padding: 10px;
     font-size: 130%;
@@ -81,4 +138,36 @@
 .node-popup .footer-float-fix {
     visibility: hidden;
     margin-bottom: 20px;
+}
+
+
+
+/* ======================================================
+				    	MARKER
+=======================================================*/
+
+.marker-icon {
+    background-color: #3b4fd1;
+    background-color: #3183e8;
+    width: 28px;
+    height: 28px;
+    display: block;
+    position: absolute;
+    border-radius: 50px 50px 0;
+    transform: rotate(45deg);
+    border: 1.5px solid #000;
+}
+
+.marker-icon.active { background-color: #3183e8; }
+.marker-icon.inactive { background-color: #d42635; }
+
+.marker-icon::after {
+    content: '';
+    background-color: #fff;
+    border-radius: 100px;
+    width: 12px;
+    height: 12px;
+    position: absolute;
+    top: 6.5px;
+    left: 6.5px;
 }
