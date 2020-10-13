@@ -15,6 +15,8 @@ let stations = [
     // }
 ];
 
+let zones = {};
+
 function windowResize() {
     let options = document.getElementById("nav-node-search-options");
     options.style.maxHeight = Math.min(window.innerHeight - options.offsetTop - 100, 300) + "px";
@@ -92,7 +94,7 @@ function createChart(data) {
                     label: field,
                     data: chartData[field],
                     // backgroundColor: 'rgba(0, 0, 0, 0)',
-                    backgroundColor: chartBackgroundColors[colorIndex++%chartBackgroundColors.length],
+                    backgroundColor: chartBackgroundColors[colorIndex%chartBackgroundColors.length],
                     borderColor: chartLineColors[colorIndex++%chartLineColors.length],
                     borderWidth: 1.5,
                     lineTension: 0.1,
@@ -105,7 +107,7 @@ function createChart(data) {
         }
 
         let chart = new Chart(ctx, chartConfig);
-        console.log(chart.data);
+        return;
     });
 
 }
@@ -131,17 +133,17 @@ function fetchHistoryData() {
             }
         }).then( data => {
             if (data && data.length) {
-                console.log(data);
                 createChart(data);
             }
         });
-    } else {
+    } else if (currentModalStationId) {
         alert("Enter start and end date time");
     }
 }
 
 function toggleStationDetailModal(stationId) {
     currentModalStationId = stationId;
+    fetchHistoryData();
     togglePageOverlay();
     document.getElementById("page-overlay").onclick = () => {toggleStationDetailModal()};
     document.getElementById("node-detail-modal").classList.toggle("show");
@@ -153,6 +155,23 @@ function toggleStationDetailModal(stationId) {
 				    	 MAP
 =======================================================*/
 
+function toggleZoneFilter(zoneId, sw) {
+    if (zones[zoneId]) {
+        toggleSwitch(sw);
+        if (sw.classList.contains("active")) {
+            zones[zoneId].stations.forEach(station => {
+                mymap.addLayer(station.marker);
+            });
+        } else {
+            zones[zoneId].stations.forEach(station => {
+                mymap.removeLayer(station.marker);
+            });
+        }
+    }
+
+    updateNavStationSearchOptions(document.getElementById('nav-node-search-input').value);
+}
+
 function toggleDetailStationLabel(sw) {
     toggleSwitch(sw);
     document.getElementById('detail-node-label-flag').classList.toggle('active');
@@ -163,8 +182,9 @@ function updateNavStationSearchOptions(filter) {
     options.innerHTML = '';
     stations.forEach(station => {
         let optionValue = `${station.id} - ${station.name}`;
-        let i = 0;
-        if (!filter || optionValue.indexOf(filter) != -1) {
+        
+        if ((!filter || optionValue.indexOf(filter) != -1) &&
+            !document.getElementById('dma-' + station.zoneId).classList.contains('show')) {
             let option = document.createElement('div');
             option.className = 'option';
             option.innerHTML = optionValue;
@@ -210,6 +230,7 @@ function fetchStationData(station) {
         data => {
             station.data = data;
             updateStationPopup(station);
+            if (!station.marker.isPopupOpen()) station.marker.openPopup();
         }
     );
 }
@@ -244,9 +265,10 @@ function updateStationPopup(station) {
             <div onclick="toggleStationDetailModal('${station.id}')" class="footer">Thêm thông tin</div>
         <div class="footer-float-fix">a</div>
     `);
+
 }
 
-function addStation(id, name, lat, lng, params) {
+function addStation(id, name, lat, lng, params, zoneId) {
     let active = Math.random() >= 0.3;
 
     let station = {
@@ -254,6 +276,7 @@ function addStation(id, name, lat, lng, params) {
         name: name,
         lat: lat,
         lng: lng,
+        zoneId: zoneId,
         data: {
             'Thông số': 'Chưa có thông tin'
         }
@@ -297,6 +320,20 @@ function addStation(id, name, lat, lng, params) {
     }).on("mouseout", () => {
         bringStationToFront(station, false);
     });
+    
+    if (zones[zoneId]) {
+        let submenuStation = document.createElement('span');
+        submenuStation.className = 'nav-item-label';
+        submenuStation.innerHTML = station.id + ' - ' + station.name;
+        submenuStation.onclick = () => { station.marker.openPopup(); };
+        document.getElementById('dma-' + zoneId + '-submenu').appendChild(submenuStation);
+
+        // document.getElementById('dma-' + zoneId + '-submenu').subMenuDom.innerHTML += `
+        //     <span class="nav-item-label">${station.id + ' - ' + station.name}</span>
+        // `;
+
+        zones[zoneId].stations.push(station);
+    }
 }
 
 function fetchStations() {
@@ -312,10 +349,14 @@ function fetchStations() {
         }
     ).then(
         fStations => {
-            console.log(fStations);
             if (fStations) {
                 fStations.forEach(station => {
-                    addStation(station['station_code'], station['station_address'], station['station_latitude'], station['station_longitude'], station['station_params']);
+                    addStation(station['station_code'],
+                               station['station_address'],
+                               station['station_latitude'],
+                               station['station_longitude'],
+                               station['station_params'],
+                               station['zone_id']);
                 });
                 updateNavStationSearchOptions();
             }
@@ -323,10 +364,48 @@ function fetchStations() {
     );
 }
 
-// addStation('CT33', 'D114. Lê Thị Hồng Gấm', 10.05, 105.74);
-fetchStations();
-windowResize();
-window.addEventListener("resize", windowResize);
+function fetchZones() {
+    const fetchUrl = HOST + '/zones';
+    fetch(fetchUrl).then(
+        res => {
+            if (Math.floor(res.status/100) != 2) {
+                console.log("Unexpected error fetching " + fetchUrl);
+                return "";
+            } else {
+                return res.json();
+            }
+        }
+    ).then( fZones => {
+        if (fZones) {
+            let zoneContainer = document.getElementById('dma-nav-container');
+            fZones.forEach(zone => {
+                zoneContainer.innerHTML += `
+                <div id="dma-${zone.zone_id}" class="nav-item nav-dropdown" onclick="toggleNavDropdown(this)">
+                    <span class="nav-item-label label-no-icon">${zone.zone_code + ' - ' + zone.zone_name}</span>
+                </div>
+                <div id="dma-${zone.zone_id}-submenu" class="nav-item nav-sub-menu">
+                    <span class="nav-item-label">Hiển thị DMA</span>
+                    <div class="switch-placeholder"></div>
+                    <div onclick="toggleZoneFilter(${zone.zone_id},this)" class="switch active"></div>
+                </div>
+                `;
+                
+                zones[zone.zone_id] = {
+                    id: zone.zone_id,
+                    code: zone.zone_code,
+                    name: zone.zone_name,
+                    stations: []
+                };
+            });
+        }
+        fetchStations();
+    });
+}
+
+fetchZones();
+
+// windowResize();
+// window.addEventListener("resize", windowResize);
 document.getElementById("nav-node-search-input").addEventListener("keyup", () => {
     updateNavStationSearchOptions(document.getElementById("nav-node-search-input").value);
 });
