@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include <queue.h>
 #include <mqtt.h>
@@ -110,13 +111,17 @@ int main(int argc, char* argv[])
     }
     else
     {
+        time_t now;
+        time(&now);
+        now += atoi(argv[2]);
+
         pub_client = mqtt_open_connection(ADDRESS, argv[1]);
         mqtt_set_message_delivered_handler(message_delivered_custom_handler);
 
         for (int i = atoi(argv[2]); i <= atoi(argv[3]); i++)
         {
-            char payload[20];
-            snprintf(payload, 200, "%d", i);
+            char payload[200];
+            snprintf(payload, 200, "%d:%s:%s", (unsigned)now++, "a", "{\"al\":3.2,\"p01\":4.7}");
             mqtt_publish(pub_client, TOPIC_PUB, payload, QOS, TIMEOUT);
         }
     }

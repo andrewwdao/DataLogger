@@ -79,12 +79,12 @@ int pgsql_exec_insert(char* table, char** cols, char** vals, int n)
 		end_of_buffer += snprintf(end_of_buffer, max_buffer_len - (end_of_buffer - query),
 								  "%s%c", vals[i], (i == n-1 ? ')' : ','));
 
-	printf("QUERY: %s\n\n", query);
+	printf("QUERY: %s\n", query);
 
 	PGresult* res = pgsql_exec_query(query);
 
 	if (res == NULL) {
-		printf("Failed to insert!\n");
+		printf("Insertion failed!\n");
 		return PGSQL_STATUS_ERR;
 	}
 

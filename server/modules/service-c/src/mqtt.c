@@ -30,7 +30,7 @@ void connection_lost(void *context, char *cause)
     printf("     cause: %s\n", cause);
 }
 
-MQTTClient* mqtt_open_connection(const char* address, const char* client_id)
+MQTTClient* mqtt_open_connection(const char* address, const char* client_id, int async)
 {
     MQTTClient* client = (MQTTClient*)malloc(sizeof(MQTTClient));
     MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer;
@@ -46,7 +46,7 @@ MQTTClient* mqtt_open_connection(const char* address, const char* client_id)
 
     if (message_arrived_handler == NULL) message_arrived_handler = message_arrived;
     if (message_delivered_handler == NULL) message_delivered_handler = message_delivered;
-    if ((rc = MQTTClient_setCallbacks(*client, NULL, connection_lost, message_arrived_handler, message_delivered_handler)) != MQTTCLIENT_SUCCESS)
+    if (async && (rc = MQTTClient_setCallbacks(*client, NULL, connection_lost, message_arrived_handler, message_delivered_handler)) != MQTTCLIENT_SUCCESS)
     {
         printf("Failed to set callbacks, return code %d\n", rc);
         rc = EXIT_FAILURE;
