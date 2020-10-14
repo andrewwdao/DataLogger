@@ -1,5 +1,7 @@
-#define QUEUE_EMPTY -9999
-typedef int node_data_type;
+#include <mqtt.h>
+
+#define QUEUE_EMPTY NULL
+typedef char* node_data_type;
 
 typedef struct Node_
 {
