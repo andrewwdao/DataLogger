@@ -13,6 +13,12 @@ type Data struct {
 	*revel.Controller
 }
 
+func (c Data) Zones() revel.Result{
+	zoneList := getAllZone()
+    c.Response.Out.Header().Add("Access-Control-Allow-Origin","*")
+	return c.RenderJSON(zoneList)
+}
+
 func (c Data) Stations() revel.Result{
 	stationList := getAllStation()
     c.Response.Out.Header().Add("Access-Control-Allow-Origin","*")
@@ -55,10 +61,33 @@ func (c Data) TimeRangeData(code string) revel.Result{
 	return c.RenderJSON(data)
 }
 
+func getAllZone() []models.Zone{
+	zoneList := make([]models.Zone, 0)
+	
+	sql := "SELECT zone_id, zone_code, zone_name FROM zones"
+
+	rows, err := app.DB.Query(sql)
+	if err != nil{
+		panic(err)
+	}
+	
+	defer rows.Close()
+
+	for rows.Next(){
+		var instance models.Zone
+		err := rows.Scan(&instance.ZoneID, &instance.ZoneCode, &instance.ZoneName)
+		if err != nil{
+			panic(err)
+		}
+		zoneList = append(zoneList, instance)
+	}
+	return zoneList
+}
+
 func getAllStation() []models.Station{
 	stationList := make([]models.Station, 0)
 	
-	sql := "SELECT station_code, station_address, station_longitude, station_latitude, array (select json_object_keys(sensor_parameters))as station_params FROM stations;"
+	sql := "SELECT station_code, station_address, station_longitude, station_latitude, array (select json_object_keys(sensor_parameters))as station_params, zone_id FROM stations;"
 
 	rows, err := app.DB.Query(sql)
 	if err != nil{
@@ -69,8 +98,8 @@ func getAllStation() []models.Station{
 
 	for rows.Next(){
 		var instance models.Station
-		err := rows.Scan(&instance.StationCode, &instance.StationAddress, 
-			&instance.StationLongitude, &instance.StationLatitude, pq.Array(&instance.StationParams))
+		err := rows.Scan(&instance.StationCode, &instance.StationAddress, &instance.StationLongitude, 
+			&instance.StationLatitude, pq.Array(&instance.StationParams), &instance.ZoneID)
 		if err != nil{
 			panic(err)
 		}

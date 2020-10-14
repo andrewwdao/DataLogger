@@ -6,4 +6,5 @@ type Station struct{
 	StationLongitude float64 `json:"station_longitude"`
 	StationLatitude float64 `json:"station_latitude"`
 	StationParams []string `json:"station_params"`
+	ZoneID uint32 `json:"zone_id"`
 }
