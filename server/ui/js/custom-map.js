@@ -44,7 +44,7 @@ function createChart(data) {
     Object.keys(data[0]['payload']).forEach(field => chartData[field] = []);
 
     data.forEach(record => {
-        chartLabels.push(new Date(record['timestamp']*1000).toLocaleString());
+        chartLabels.push(new Date(record['timestamp']*1000).toLocaleString({timeZone: "Asia/HoChiMinh"}));
         Object.keys(record['payload']).forEach(field => {
             chartData[field].push(record['payload'][field]);
         });
@@ -119,8 +119,8 @@ function createChart(data) {
 let currentModalStationId = null;
 
 function fetchHistoryData() {
-    let startTimestamp = (document.getElementById("start-date-input").valueAsNumber + document.getElementById("start-time-input").valueAsNumber)/1000;
-    let endTimestamp = (document.getElementById("end-date-input").valueAsNumber + document.getElementById("end-time-input").valueAsNumber)/1000;
+    let startTimestamp = (document.getElementById("start-date-input").valueAsNumber + document.getElementById("start-time-input").valueAsNumber + new Date().getTimezoneOffset()*3600000/60)/1000;
+    let endTimestamp = (document.getElementById("end-date-input").valueAsNumber + document.getElementById("end-time-input").valueAsNumber + new Date().getTimezoneOffset()*3600000/60)/1000;
     
     if (!isNaN(startTimestamp) && !isNaN(endTimestamp) && currentModalStationId) {
         const fetchUrl = `http://datalogger.ddns.net:8080/stations/${currentModalStationId}/data?start=${startTimestamp}&end=${endTimestamp}`;
@@ -182,9 +182,8 @@ function updateNavStationSearchOptions(filter) {
     options.innerHTML = '';
     stations.forEach(station => {
         let optionValue = `${station.id} - ${station.name}`;
-        
         if ((!filter || optionValue.indexOf(filter) != -1) &&
-            !document.getElementById('dma-' + station.zoneId).classList.contains('show')) {
+            document.getElementById('dma-' + station.zoneId + '-sw').classList.contains('active')) {
             let option = document.createElement('div');
             option.className = 'option';
             option.innerHTML = optionValue;
@@ -380,13 +379,13 @@ function fetchZones() {
             let zoneContainer = document.getElementById('dma-nav-container');
             fZones.forEach(zone => {
                 zoneContainer.innerHTML += `
-                <div id="dma-${zone.zone_id}" class="nav-item nav-dropdown" onclick="toggleNavDropdown(this)">
+                <div class="nav-item nav-dropdown" onclick="toggleNavDropdown(this)">
                     <span class="nav-item-label label-no-icon">${zone.zone_code + ' - ' + zone.zone_name}</span>
                 </div>
                 <div id="dma-${zone.zone_id}-submenu" class="nav-item nav-sub-menu">
                     <span class="nav-item-label">Hiển thị DMA</span>
                     <div class="switch-placeholder"></div>
-                    <div onclick="toggleZoneFilter(${zone.zone_id},this)" class="switch active"></div>
+                    <div id="dma-${zone.zone_id}-sw" onclick="toggleZoneFilter(${zone.zone_id},this)" class="switch active"></div>
                 </div>
                 `;
                 
@@ -404,8 +403,8 @@ function fetchZones() {
 
 fetchZones();
 
-// windowResize();
-// window.addEventListener("resize", windowResize);
+windowResize();
+window.addEventListener("resize", windowResize);
 document.getElementById("nav-node-search-input").addEventListener("keyup", () => {
     updateNavStationSearchOptions(document.getElementById("nav-node-search-input").value);
 });
