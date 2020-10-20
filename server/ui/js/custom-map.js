@@ -152,12 +152,13 @@ function fetchHistoryData(openModal) {
     }
 }
 
-function toggleStationDetailModal(stationId) {
+function toggleStationDetailModal(stationId, stationName) {
     currentModalStationId = stationId;
     fetchHistoryData(true);
     togglePageOverlay();
     document.getElementById("page-overlay").onclick = () => {toggleStationDetailModal()};
     document.getElementById("node-detail-modal").classList.toggle("show");
+    document.getElementById("node-detail-modal-header").innerHTML = `${stationId} - ${stationName}`;
 }
 
 
@@ -272,7 +273,7 @@ function updateStationPopup(station) {
                 <span class="value">${station.lastUpdate ? station.lastUpdate : 'Chưa có thông tin'}</span>
             </div>-->
             ${stationData}
-            <div onclick="toggleStationDetailModal('${station.id}')" class="footer">Thêm thông tin</div>
+            <div onclick="toggleStationDetailModal('${station.id}', '${station.name}')" class="footer">Thêm thông tin</div>
         <div class="footer-float-fix">a</div>
     `);
 
