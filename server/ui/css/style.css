@@ -389,33 +389,6 @@ body {
     width: 100%;
 }
 
-/* ======================================================
-					CHART TIME FILTER
-=======================================================*/
-.time-filter {
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-.time-filter .time-filter-group {
-    width: 100%;
-    padding: 5px;
-    margin: auto;
-    margin-bottom: 10px;
-}
-
-.time-filter .label {
-    display: inline-block;  
-    width: 50px;
-}
-
-.time-filter-group .date-input,
-.time-filter-group .time-input {
-    margin-bottom: 5px;
-    margin-left: 40px;
-    font-size: 90%;
-}
-
 
 /* ======================================================
 				       	TABLE

@@ -118,12 +118,15 @@ function createChart(data) {
 =======================================================*/
 let currentModalStationId = null;
 
-function fetchHistoryData() {
+function fetchHistoryData(openModal) {
     let startTimestamp = (document.getElementById("start-date-input").valueAsNumber + document.getElementById("start-time-input").valueAsNumber + new Date().getTimezoneOffset()*3600000/60)/1000;
     let endTimestamp = (document.getElementById("end-date-input").valueAsNumber + document.getElementById("end-time-input").valueAsNumber + new Date().getTimezoneOffset()*3600000/60)/1000;
     
+    let interval = document.getElementById("interval-input").value;
+    interval = interval ? interval : 1;
+
     if (!isNaN(startTimestamp) && !isNaN(endTimestamp) && currentModalStationId) {
-        const fetchUrl = `http://datalogger.ddns.net:8080/stations/${currentModalStationId}/data?start=${startTimestamp}&end=${endTimestamp}`;
+        const fetchUrl = `http://datalogger.ddns.net:8080/stations/${currentModalStationId}/data?start=${startTimestamp}&end=${endTimestamp}&interval=${interval}`;
         fetch(fetchUrl).then(res => {
             if (Math.floor(res.status/100) != 2) {
                 console.log("Unexpected error fetching " + fetchUrl);
@@ -132,8 +135,16 @@ function fetchHistoryData() {
                 return res.json();
             }
         }).then( data => {
+            // console.log(data.length);
+            // console.log(fetchUrl);
+            if (data.length > 300) {
+                if (!confirm(`Có rất nhiều dữ liệu trong khoảng thời gian này (${data.length} ghi nhận). Hiển thị?`)) return;
+            }
             if (data && data.length) {
                 createChart(data);
+            } else if (!openModal) {
+                alert("Không có dữ liệu trong khoảng thời gian này");
+                document.getElementById('chart-container').innerHTML = '';
             }
         });
     } else if (currentModalStationId) {
@@ -143,7 +154,7 @@ function fetchHistoryData() {
 
 function toggleStationDetailModal(stationId) {
     currentModalStationId = stationId;
-    fetchHistoryData();
+    fetchHistoryData(true);
     togglePageOverlay();
     document.getElementById("page-overlay").onclick = () => {toggleStationDetailModal()};
     document.getElementById("node-detail-modal").classList.toggle("show");
