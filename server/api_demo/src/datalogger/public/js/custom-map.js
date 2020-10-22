@@ -123,7 +123,7 @@ function fetchHistoryData() {
     let endTimestamp = (document.getElementById("end-date-input").valueAsNumber + document.getElementById("end-time-input").valueAsNumber)/1000;
     
     if (!isNaN(startTimestamp) && !isNaN(endTimestamp) && currentModalStationId) {
-        const fetchUrl = `http://datalogger.ddns.net:8080/stations/${currentModalStationId}/data?start=${startTimestamp}&end=${endTimestamp}`;
+        const fetchUrl = `http://datalogger.ddns.net:8080/stations/${currentModalStationId}/data?start=${startTimestamp}&end=${endTimestamp}&interval=480`;
         fetch(fetchUrl).then(res => {
             if (Math.floor(res.status/100) != 2) {
                 console.log("Unexpected error fetching " + fetchUrl);
