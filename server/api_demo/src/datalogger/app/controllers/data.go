@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"time"
+	"regexp"
 	"strconv"
 	"github.com/revel/revel"
 	"datalogger/app"
@@ -35,30 +36,29 @@ func (c Data) LatestData(code string) revel.Result{
 	return c.RenderJSON(map[string]string{"detail": "Data not found"})
 }
 
-func (c Data) TimeRangeData(code string) revel.Result{
-	var start, end int64
-	var err error
+func (c Data) TimeRangeIntervalData(code string) revel.Result{
+	var start, end, interval string
+
+	start = c.Params.Query.Get("start")
+	end = c.Params.Query.Get("end")
+	interval = c.Params.Query.Get("interval")
+
+	r, _ := regexp.Compile("^[0-9]*$")
 	c.Response.Out.Header().Add("Access-Control-Allow-Origin","*")
-
-	if start, err = strconv.ParseInt(c.Params.Query.Get("start"), 10, 32); err != nil {
-		c.Response.Status = 400
-		return c.RenderJSON(map[string]string{"detail": "Bad request"})
+	if(r.MatchString(start) && r.MatchString(end) && r.MatchString(interval)){
+		start_time, _ := strconv.ParseInt(start, 10, 64)
+		end_time, _ := strconv.ParseInt(end, 10, 64)
+		interval_time, _ := strconv.ParseInt(interval, 10, 64) 
+		
+		if(interval_time == 0){
+			c.Response.Status = 400
+			return c.RenderJSON(map[string]string{"detail": "Bad request"})
+		}
+		data := getTimeRangeIntervalData(code, time.Unix(start_time, 0), time.Unix(end_time, 0), interval_time)
+		return c.RenderJSON(data)
 	}
-	if end, err = strconv.ParseInt(c.Params.Query.Get("end"), 10, 64); err != nil {
-		c.Response.Status = 400
-		return c.RenderJSON(map[string]string{"detail": "Bad request"})
-	}
-	if start > end {
-		c.Response.Status = 400
-		return c.RenderJSON(map[string]string{"detail": "Bad request"})
-	}
-
-	start_time := time.Unix(start, 0)
-	end_time := time.Unix(end, 0)
-
-	data := getTimeRangeDate(code, start_time, end_time)
-
-	return c.RenderJSON(data)
+	c.Response.Status = 404
+	return c.RenderJSON(map[string]string{"detail": "Bad request"})
 }
 
 func getAllZone() []models.Zone{
@@ -129,6 +129,32 @@ func getTimeRangeDate(station string, start time.Time, end time.Time) []models.D
 	sql := "SELECT time, payload FROM data WHERE station_code=$1 AND time >= $2 AND time < $3"
 
 	rows, err := app.DB.Query(sql, station, start, end)
+	if err != nil{
+		panic(err)
+	}
+
+	defer rows.Close()
+
+	for rows.Next(){
+		var timestamp time.Time
+		var instance models.Data
+		err := rows.Scan(&timestamp, &instance.Payload)
+		if err != nil{
+			panic(err)
+		}
+		instance.Timestamp = int64(timestamp.Unix())
+		dataList = append(dataList, instance)
+	}
+
+	return dataList
+}
+
+func getTimeRangeIntervalData(station string, start time.Time, end time.Time, interval int64) []models.Data{
+	dataList := make([]models.Data, 0)
+
+	sql := "SELECT time, payload FROM data WHERE station_code=$1 AND time >= $2 AND time < $3 AND MOD((extract(EPOCH from time) - EXTRACT(EPOCH FROM $2))::BIGINT, $4) BETWEEN 0 and 60;"
+
+	rows, err := app.DB.Query(sql, station, start, end, interval)
 	if err != nil{
 		panic(err)
 	}

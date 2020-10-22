@@ -1,0 +1,250 @@
+/* ======================================================
+				    		NAV
+=======================================================*/
+
+#nav {
+    background-color: #333;
+    left: -280px;
+    width: 280px;
+    transform: translate(0, 0);
+}
+
+#nav.show,
+#nav:hover {
+    width: 280px;
+}
+
+.nav-toggler {
+    left: 10px;
+    background-color: #333;
+}
+
+#nav.show .nav-toggler,
+#nav:hover .nav-toggler {
+    transform: translate(15px, 0);
+    box-shadow: unset;
+    background-color: #333;
+}
+
+.nav-toggler-icon,
+.nav-toggler-icon::before,
+.nav-toggler-icon::after {
+    background-color: #fff;
+}
+
+.nav-toggler.sm {
+    position: absolute;
+    float: left;
+    top: 50%;
+    left: 20px;
+    transform: translate(0, -50%);
+    margin: 0;
+    background-color: #fff;
+    box-shadow: 2px 2px 10px grey;
+    opacity: 0.7;
+}
+
+.nav-toggler.sm .nav-toggler-icon,
+.nav-toggler.sm .nav-toggler-icon::before,
+.nav-toggler.sm .nav-toggler-icon::after {
+    background-color: #333;
+}
+
+.nav-item-label {
+    position: absolute;
+}
+
+
+/* ======================================================
+				       	TILES
+=======================================================*/
+
+.tile-container {
+    padding: 1%;
+    box-sizing: border-box;
+    color: #000;
+}
+
+.tile {
+    background-color: #fff;
+    position: relative;
+    padding: 10px 10px;
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+    box-shadow: 2px 2px 10px grey;
+}
+
+.tile.orange {    
+    background: #edb637;
+    /* background: linear-gradient(45deg, rgba(227,164,77,1) 0%, rgba(250,233,211,1) 80%, rgba(255,255,255,1) 100%); */
+}
+
+.tile.green {
+    background: #36e62c;
+    /* background: linear-gradient(45deg, rgba(53,210,43,1) 0%, rgba(211,245,210,1) 80%, rgba(255,255,255,1) 100%); */
+}
+
+.tile.red {
+    background: #e62525;
+    /* background: linear-gradient(45deg, rgba(230,37,37,1) 0%, rgba(232,50,50,1) 82%, rgba(255,255,255,1) 100%); */
+}
+
+.tile.blue {
+    background: #427ded;
+    /* background: linear-gradient(45deg, rgba(50,110,226,1) 0%, rgba(191,201,221,1) 80%, rgba(255,255,255,1) 100%); */
+}
+
+.tile.info {
+    padding: 60px 5%;
+}
+
+
+.tile.info .tile-icon {
+    position: absolute;
+    top: 40px;
+    left: 30px;
+    width: 40px;
+    height: 40px;
+}
+
+.tile.info .tile-label {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 110%;
+    max-width: 200px;
+    text-align: right;
+    color: white;
+    font-weight: bold;
+}
+
+.tile.info .tile-value {
+    position: absolute;
+    top: 70px;
+    right: 20px;
+    font-size: 200%;
+    color: white;
+    font-weight: bold;
+}
+
+.tile-label {
+    color: grey;
+}
+
+.tile-header {
+    font-weight: bold;
+    color: grey;
+    font-size: 110%;
+    /* text-align: center; */
+    padding: 15px;
+    border-bottom: 1px solid lightgrey;
+    margin-bottom: 15px;
+}
+
+
+/* ======================================================
+				       	TABLE
+=======================================================*/
+.table-container {
+    margin-top: 20px;
+    margin-left: 5px;
+    background-color: #fff;
+}
+
+
+/* ======================================================
+				       	CHART
+=======================================================*/
+#chart {
+    height: 400px;
+}
+
+/* ======================================================
+				       AVATAR MENU
+=======================================================*/
+#avatar-menu {
+    position: absolute;
+    right: 20px;
+    top: 15px;
+    cursor: pointer;
+    /* border: 1px solid lightgrey; */
+    border-radius: 50px;
+    /* padding: 5px; */
+    box-shadow: 2px 2px 10px grey;
+}
+
+#avatar {
+    display: inline-block;
+    width: 45px;
+    height: 45px;
+    padding: 10px;
+    font-size: 150%;
+    font-weight: bold;
+    text-align: center;
+    vertical-align: middle;
+    border-radius: 50%;
+    background-color: #427ded;
+    color: #fff;
+}
+
+
+/* ======================================================
+				       	GENERAL
+=======================================================*/
+
+#main,
+#nav.show ~ #main {
+    overflow: auto;
+    left: 0;
+}
+
+#main #content {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    flex-flow: row wrap;
+}
+
+#page-header {
+    position: relative;
+    font-size: 140%;
+    padding: 20px;
+    padding-left: 90px;
+    font-weight: bold;
+    color: grey;
+}
+
+
+
+/* Large devices (tablets, 800px and up) */
+@media only screen and (min-width: 800px) {
+    
+    #main {
+        left: 65px;
+    }
+
+    #nav.show ~ #main,
+    #nav:hover ~ #main {
+        left: 280px;
+    }
+
+    #nav {
+        left: 0;
+        width: 65px;
+    }
+    #page-header {
+        padding-left: 20px;
+    }
+
+    .sm {
+        display: none;
+    }
+}
+
+
+/* Extra large devices (large laptops and desktops, 1200px and up) */
+@media only screen and (min-width: 1200px) {
+
+
+}

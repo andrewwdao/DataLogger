@@ -12,7 +12,7 @@ GET     /demo                                   App.Demo
 GET     /zones                                  Data.Zones
 GET     /stations                               Data.Stations
 GET     /stations/:code/latest                  Data.LatestData
-GET     /stations/:code/data                    Data.TimeRangeData
+GET     /stations/:code/data                    Data.TimeRangeIntervalData                 
 
 # Ignore favicon requests
 GET     /favicon.ico                            404
