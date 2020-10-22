@@ -20,31 +20,37 @@
 #define QOS         2
 #define TIMEOUT     1000
 
+#define MESSAGE_HANDLED_OK  0
+#define MESSAGE_HANDLED_ERR 1
+
+
 MQTTClient* sub_client;
 
 pthread_t process_message_tid;
 volatile int message_processing;
 volatile int cnt = 0;
 
+Queue queue;
 
-void handle_message(char* payload)
+
+int handle_message(char* payload)
 {
     char* timestamp = payload;
     char* id = strstr(payload, ":");
     if (id == NULL)
     {
-        printf("Payload format is not correct! Aborted!\n");
+        printf("Payload format is not correct!\n%s\nAborted!\n", payload);
         free(payload);
-        return;
+        return MESSAGE_HANDLED_ERR;
     }
     else *(id++) = '\0';
 
     char* data = strstr(id, ":");
     if (id == NULL)
     {
-        printf("Payload format is not correct! Aborted!\n");
+        printf("Payload format is not correct!\n%s\nAborted!\n", payload);
         free(payload);
-        return;
+        return MESSAGE_HANDLED_ERR;
     }
     else *(data++) = '\0';
 
@@ -67,18 +73,28 @@ void handle_message(char* payload)
 
     int status = pgsql_exec_insert("data", cols, vals, n);
 
-    if (status != PGSQL_STATUS_OK)
+    if (status != PGSQL_STATUS_OK) {
         printf("Insertion failed!\n\n");
-    else
-        printf("Data inserted!\n\n");
-        
-    printf("COUNT: %d\n\n", ++cnt);
 
+        *(--id) = ':';
+        *(--data) = ':';
+        enqueue(&queue, payload);
+
+        return MESSAGE_HANDLED_ERR;
+    }
+    
+    printf("Data inserted!\n\n");
+
+    if (payload != NULL) free(payload);
+
+    return MESSAGE_HANDLED_OK;
 }
 
 
 int main(int argc, char* argv[])
 {
+    queue_init(&queue);
+
     printf("Opening database connection...\n");
     pgsql_open_connection(CONN_INFO);
 
@@ -87,7 +103,16 @@ int main(int argc, char* argv[])
 
     char message[300];
     while(fgets(message, sizeof(message), sub_client) != NULL) {
-        handle_message(message);
+        char* m_message = (char*)malloc(sizeof(char)*strlen(message)+1);
+        strcpy(m_message, message);
+        enqueue(&queue, m_message);
+
+        while (queue.size) {
+            char* payload = dequeue(&queue);
+            if (handle_message(payload) != MESSAGE_HANDLED_OK) break;
+        }
+
+        printf("COUNT: %d\n\n", ++cnt);
     }
 
 

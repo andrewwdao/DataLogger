@@ -2,7 +2,6 @@
 # https://www.geeksforgeeks.org/static-vs-dynamic-libraries/
 # https://www.rapidtables.com/code/linux/gcc/gcc-l.html
 
-
 COMPILER=gcc
 
 TARGET=service

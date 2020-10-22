@@ -1,17 +1,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
 
 #include <libpq-fe.h>
 
 #include <pgsql.h>
 
+char* reconn_info = NULL;
+PGconn* conn = NULL;
 
-PGconn* conn;
-
-void pgsql_close_connection(PGconn* conn)
+void pgsql_close_connection()
 {
-	PQfinish(conn);
+	if (conn != NULL)
+		PQfinish(conn);
 }
 
 int pgsql_set_secure_search_path()
@@ -23,7 +25,7 @@ int pgsql_set_secure_search_path()
 	if (PQresultStatus(res) != PGRES_TUPLES_OK) {
         fprintf(stderr, "SET failed: %s", PQerrorMessage(conn));
         PQclear(res);
-        pgsql_close_connection(conn);
+        pgsql_close_connection();
 
 		return PGSQL_STATUS_ERR;
     }
@@ -33,25 +35,48 @@ int pgsql_set_secure_search_path()
 
 int pgsql_open_connection(const char* conninfo)
 {
+	reconn_info = (char*)realloc(reconn_info,sizeof(char)*strlen(conninfo)+1);
+	strcpy(reconn_info, conninfo);
+
 	conn = PQconnectdb(conninfo);
+
 	if (PQstatus(conn) != CONNECTION_OK) {
 		printf("Can't connect to database\n%s\n", PQerrorMessage(conn));
-		pgsql_close_connection(conn);
+		pgsql_close_connection();
+		conn = NULL;
 		return PGSQL_STATUS_ERR;
 	}
 
 	return PGSQL_STATUS_OK;
 }
 
+void pgsql_recover_connection()
+{
+	pgsql_close_connection();
+
+	if (pgsql_open_connection(reconn_info) == PGSQL_STATUS_OK) {
+		printf("CONNECTION RECOVERED!\n");
+	} else {
+		printf("CONNECTION COULD NOT RECOVERED!\n");
+	}
+}
+
 PGresult* pgsql_exec_query(const char* query)
 {
+	if (PQstatus(conn) != CONNECTION_OK) {
+		printf("Connection lost, recovering...\n");
+		pgsql_recover_connection();
+	}
+
+	if (conn == NULL) return NULL;
+
 	PGresult* res = PQexec(conn, query);
 
 	if (PQresultStatus(res) != PGRES_COMMAND_OK)
 	{
 		fprintf(stderr, "Exec query failed: %s", PQerrorMessage(conn));
 		PQclear(res);
-		// pgsql_close_connection(conn);
+		// pgsql_close_connection();
 		
 		return NULL;
 	}

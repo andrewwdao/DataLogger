@@ -102,7 +102,7 @@ int main(int argc, char* argv[])
         mqtt_set_message_arrived_handler(message_arrived_test);
 
         printf("Opening sub MQTT connection...\n");
-        sub_client = mqtt_open_connection(ADDRESS, argv[1]);
+        sub_client = mqtt_open_connection(ADDRESS, argv[1], 0);
 
         printf("Subscribing to topic %s\n", TOPIC_SUB);
         mqtt_subscribe(sub_client, TOPIC_SUB, QOS);
@@ -115,13 +115,14 @@ int main(int argc, char* argv[])
         time(&now);
         now += atoi(argv[2]);
 
-        pub_client = mqtt_open_connection(ADDRESS, argv[1]);
+        pub_client = mqtt_open_connection(ADDRESS, argv[1], 0);
         mqtt_set_message_delivered_handler(message_delivered_custom_handler);
 
         for (int i = atoi(argv[2]); i <= atoi(argv[3]); i++)
         {
             char payload[200];
             snprintf(payload, 200, "%d:%s:%s", (unsigned)now++, "a", "{\"al\":3.2,\"p01\":4.7}");
+            printf("%s\n", payload);
             mqtt_publish(pub_client, TOPIC_PUB, payload, QOS, TIMEOUT);
         }
     }
