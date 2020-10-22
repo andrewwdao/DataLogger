@@ -1,6 +1,9 @@
 #include <MQTTClient.h>
 
-MQTTClient* mqtt_open_connection(const char* address, const char* client_id);
+#define MQTT_ASYNC 1
+#define MQTT_SYNC  0
+
+MQTTClient* mqtt_open_connection(const char* address, const char* client_id, int async);
 int mqtt_disconnect(MQTTClient* client);
 
 int mqtt_subscribe(MQTTClient* client, const char* topic, int qos);

@@ -5,7 +5,7 @@
 
 COMPILER=gcc
 
-TARGET=test
+TARGET=service
 
 OBJ_DIR=obj
 HEADERS_DIR=include
@@ -24,6 +24,9 @@ LIB_DEPS=$(LIB_DEPS_:%=$(OBJ_DIR)/%.o)
 CFLAGS=-lpthread -lpq
 
 $(TARGET): $(OBJ_DIR)/$(TARGET).o $(LIB_DEPS) $(DEPS)
+	$(COMPILER) -I$(HEADERS_DIR) -I$(PG_HEADER_DIR) -L$(PG_LIB_DIR) -o $@ $^ $(CFLAGS)
+
+%: $(OBJ_DIR)/%.o $(LIB_DEPS) $(DEPS)
 	$(COMPILER) -I$(HEADERS_DIR) -I$(PG_HEADER_DIR) -L$(PG_LIB_DIR) -o $@ $^ $(CFLAGS)
 
 # Build library object files from library source files

@@ -80,6 +80,15 @@ int pgsql_exec_insert(char* table, char** cols, char** vals, int n)
 								  "%s%c", vals[i], (i == n-1 ? ')' : ','));
 
 	printf("QUERY: %s\n", query);
+
+	PGresult* res = pgsql_exec_query(query);
+
+	if (res == NULL) {
+		printf("Insertion failed!\n");
+		return PGSQL_STATUS_ERR;
+	}
+
+	PQclear(res);
 	return PGSQL_STATUS_OK;
 }
 

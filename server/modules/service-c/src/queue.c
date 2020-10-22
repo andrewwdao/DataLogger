@@ -30,6 +30,7 @@ node_data_type dequeue(Queue* q)
     if (q->size)
     {
         node_data_type res = q->head->value;
+
         Node* old = q->head;
         q->head = q->head->next;
         free(old);
@@ -37,5 +38,5 @@ node_data_type dequeue(Queue* q)
 
         return res;
     }
-    return QUEUE_EMPTY;
+    return NULL;
 }

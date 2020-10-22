@@ -44,7 +44,7 @@ function createChart(data) {
     Object.keys(data[0]['payload']).forEach(field => chartData[field] = []);
 
     data.forEach(record => {
-        chartLabels.push(new Date(record['timestamp']*1000).toLocaleString());
+        chartLabels.push(new Date(record['timestamp']*1000).toLocaleString({timeZone: "Asia/HoChiMinh"}));
         Object.keys(record['payload']).forEach(field => {
             chartData[field].push(record['payload'][field]);
         });
@@ -118,12 +118,15 @@ function createChart(data) {
 =======================================================*/
 let currentModalStationId = null;
 
-function fetchHistoryData() {
-    let startTimestamp = (document.getElementById("start-date-input").valueAsNumber + document.getElementById("start-time-input").valueAsNumber)/1000;
-    let endTimestamp = (document.getElementById("end-date-input").valueAsNumber + document.getElementById("end-time-input").valueAsNumber)/1000;
+function fetchHistoryData(openModal) {
+    let startTimestamp = (document.getElementById("start-date-input").valueAsNumber + document.getElementById("start-time-input").valueAsNumber + new Date().getTimezoneOffset()*3600000/60)/1000;
+    let endTimestamp = (document.getElementById("end-date-input").valueAsNumber + document.getElementById("end-time-input").valueAsNumber + new Date().getTimezoneOffset()*3600000/60)/1000;
     
+    let interval = document.getElementById("interval-input").value;
+    interval = interval ? interval : 1;
+
     if (!isNaN(startTimestamp) && !isNaN(endTimestamp) && currentModalStationId) {
-        const fetchUrl = `http://datalogger.ddns.net:8080/stations/${currentModalStationId}/data?start=${startTimestamp}&end=${endTimestamp}`;
+        const fetchUrl = `http://datalogger.ddns.net:8080/stations/${currentModalStationId}/data?start=${startTimestamp}&end=${endTimestamp}&interval=${interval}`;
         fetch(fetchUrl).then(res => {
             if (Math.floor(res.status/100) != 2) {
                 console.log("Unexpected error fetching " + fetchUrl);
@@ -132,8 +135,16 @@ function fetchHistoryData() {
                 return res.json();
             }
         }).then( data => {
+            // console.log(data.length);
+            // console.log(fetchUrl);
+            if (data.length > 300) {
+                if (!confirm(`Có rất nhiều dữ liệu trong khoảng thời gian này (${data.length} ghi nhận). Hiển thị?`)) return;
+            }
             if (data && data.length) {
                 createChart(data);
+            } else if (!openModal) {
+                alert("Không có dữ liệu trong khoảng thời gian này");
+                document.getElementById('chart-container').innerHTML = '';
             }
         });
     } else if (currentModalStationId) {
@@ -141,12 +152,13 @@ function fetchHistoryData() {
     }
 }
 
-function toggleStationDetailModal(stationId) {
+function toggleStationDetailModal(stationId, stationName) {
     currentModalStationId = stationId;
-    fetchHistoryData();
+    fetchHistoryData(true);
     togglePageOverlay();
     document.getElementById("page-overlay").onclick = () => {toggleStationDetailModal()};
     document.getElementById("node-detail-modal").classList.toggle("show");
+    document.getElementById("node-detail-modal-header").innerHTML = `${stationId} - ${stationName}`;
 }
 
 
@@ -182,9 +194,8 @@ function updateNavStationSearchOptions(filter) {
     options.innerHTML = '';
     stations.forEach(station => {
         let optionValue = `${station.id} - ${station.name}`;
-        
         if ((!filter || optionValue.indexOf(filter) != -1) &&
-            !document.getElementById('dma-' + station.zoneId).classList.contains('show')) {
+            document.getElementById('dma-' + station.zoneId + '-sw').classList.contains('active')) {
             let option = document.createElement('div');
             option.className = 'option';
             option.innerHTML = optionValue;
@@ -262,7 +273,7 @@ function updateStationPopup(station) {
                 <span class="value">${station.lastUpdate ? station.lastUpdate : 'Chưa có thông tin'}</span>
             </div>-->
             ${stationData}
-            <div onclick="toggleStationDetailModal('${station.id}')" class="footer">Thêm thông tin</div>
+            <div onclick="toggleStationDetailModal('${station.id}', '${station.name}')" class="footer">Thêm thông tin</div>
         <div class="footer-float-fix">a</div>
     `);
 
@@ -380,13 +391,13 @@ function fetchZones() {
             let zoneContainer = document.getElementById('dma-nav-container');
             fZones.forEach(zone => {
                 zoneContainer.innerHTML += `
-                <div id="dma-${zone.zone_id}" class="nav-item nav-dropdown" onclick="toggleNavDropdown(this)">
+                <div class="nav-item nav-dropdown" onclick="toggleNavDropdown(this)">
                     <span class="nav-item-label label-no-icon">${zone.zone_code + ' - ' + zone.zone_name}</span>
                 </div>
                 <div id="dma-${zone.zone_id}-submenu" class="nav-item nav-sub-menu">
                     <span class="nav-item-label">Hiển thị DMA</span>
                     <div class="switch-placeholder"></div>
-                    <div onclick="toggleZoneFilter(${zone.zone_id},this)" class="switch active"></div>
+                    <div id="dma-${zone.zone_id}-sw" onclick="toggleZoneFilter(${zone.zone_id},this)" class="switch active"></div>
                 </div>
                 `;
                 
@@ -404,8 +415,8 @@ function fetchZones() {
 
 fetchZones();
 
-// windowResize();
-// window.addEventListener("resize", windowResize);
+windowResize();
+window.addEventListener("resize", windowResize);
 document.getElementById("nav-node-search-input").addEventListener("keyup", () => {
     updateNavStationSearchOptions(document.getElementById("nav-node-search-input").value);
 });

@@ -13,7 +13,7 @@ int main(int argc, char* argv[])
     for (int i = 0; i < atoi(argv[1]); i++)
     {
         char cmd[100];
-        snprintf(cmd, 100, "./test pub%d %d %d &", i, i*100 + 1, (i+1)*100);
+        snprintf(cmd, 100, "./test_pub_sub pub%d %d %d &", i, i*100 + 1, (i+1)*100);
         system(cmd);
     }
 
